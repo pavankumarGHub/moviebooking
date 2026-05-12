@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>CineMagic — Book Your Movie Tickets</title>
+  <!-- Google Fonts & simple reset -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(145deg, #0b0f1c 0%, #0a0e1a 100%);
+      color: #f0f3fa;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+    }
+
+    /* header / navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1rem;
+    }
+
+    .logo {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e6b422, #ff6b6b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .booking-summary {
+      background: rgba(20, 25, 40, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 0.6rem 1.4rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .booking-summary span {
+      color: #ffcd4a;
+      font-weight: 700;
+    }
+
+    /* movie grid */
+    .movies-section h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.3px;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .movie-card {
+      background: rgba(18, 22, 35, 0.8);
+      backdrop-filter: blur(4px);
+      border-radius: 28px;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.3s;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+    }
+
+    .movie-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(230, 180, 34, 0.5);
+      box-shadow: 0 22px 35px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .movie-poster {
+      height: 340px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      background-color: #151e2c;
+    }
+
+    .movie-info {
+      padding: 1.3rem;
+    }
+
+    .movie-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.7rem 0;
+      color: #b9c3e6;
+      font-size: 0.85rem;
+    }
+
+    .price {
+      font-weight: 700;
+      color: #ffcd4a;
+      font-size: 1.1rem;
+    }
+
+    /* booking panel (seat selection) */
+    .booking-panel {
+      background: rgba(12, 16, 28, 0.95);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      padding: 1.5rem 2rem;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(255, 200, 70, 0.25);
+      transition: all 0.2s;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+      border-bottom: 1px dashed rgba(255,255,240,0.2);
+      padding-bottom: 0.75rem;
+    }
+
+    .selected-movie-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(120deg, #fff, #ffdd88);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .seat-legend {
+      display: flex;
+      gap: 1.2rem;
+      font-size: 0.8rem;
+    }
+
+    .seat-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .seat-example {
+      width: 24px;
+      height: 24px;
+      background: #2a3a5e;
+      border-radius: 8px 8px 8px 0;
+      display: inline-block;
+    }
+
+    .seat-example.selected {
+      background: #ffb347;
+      box-shadow: 0 0 6px #ffb347;
+    }
+
+    .seat-example.booked {
+      background: #6c757d;
+      opacity: 0.6;
+    }
+
+    /* seats grid */
+    .seats-container {
+      overflow-x: auto;
+      padding: 0.5rem 0 1rem 0;
+    }
+
+    .seats-grid {
+      display: inline-grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 0.7rem;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 1.2rem;
+      border-radius: 1.5rem;
+    }
+
+    .seat {
+      background: #1f2c44;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px 12px 10px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.1s linear;
+      color: #cfdfee;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .seat.available:hover {
+      background: #3e5a7e;
+      transform: scale(1.02);
+    }
+
+    .seat.selected {
+      background: #ffb347;
+      color: #1f1b12;
+      box-shadow: 0 0 12px #ffb347;
+    }
+
+    .seat.booked {
+      background: #5a6375;
+      cursor: not-allowed;
+      opacity: 0.6;
+      color: #bbb;
+      text-decoration: line-through;
+    }
+
+    .booking-actions {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .booking-details {
+      background: #0c1020;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #ffb347;
+      border: none;
+      padding: 0.8rem 2rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+      color: #121212;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button.cancel-btn {
+      background: #3a405b;
+      color: #f0f0f0;
+    }
+
+    button.confirm-btn {
+      background: #f5a623;
+      box-shadow: 0 4px 12px rgba(245,166,35,0.3);
+    }
+
+    button.confirm-btn:disabled {
+      background: #6c6f82;
+      cursor: not-allowed;
+      opacity: 0.6;
+      transform: none;
+    }
+
+    .message-area {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      min-height: 3rem;
+      color: #ffbc6e;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      opacity: 0.7;
+      border-top: 1px solid #1e253f;
+      padding-top: 1.8rem;
+    }
+
+    @media (max-width: 680px) {
+      .container {
+        padding: 1rem;
+      }
+      .seats-grid {
+        gap: 0.4rem;
+      }
+      .seat {
+        width: 36px;
+        height: 36px;
+        font-size: 0.7rem;
+      }
+      .movie-title {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Navbar / header -->
+  <div class="navbar">
+    <div class="logo">🎬 CineMagic</div>
+    <div class="booking-summary">
+      🎟️ My tickets: <span id="totalTicketsCount">0</span> | 💵 Total: $<span id="totalPriceSpan">0</span>
+    </div>
+  </div>
+
+  <!-- Movies grid -->
+  <div class="movies-section">
+    <h2>✨ Now Showing</h2>
+    <div class="movie-grid" id="movieGrid"></div>
+  </div>
+
+  <!-- Booking panel (appears after movie selection) -->
+  <div id="bookingPanel" class="booking-panel" style="display: none;">
+    <div class="panel-header">
+      <div>
+        <div class="selected-movie-title" id="selectedMovieTitle">--</div>
+        <div style="font-size:0.85rem; margin-top:6px;">🎭 Select your seats (max 8 per booking)</div>
+      </div>
+      <div class="seat-legend">
+        <span><i class="seat-example"></i> Available</span>
+        <span><i class="seat-example selected"></i> Selected</span>
+        <span><i class="seat-example booked"></i> Booked</span>
+      </div>
+    </div>
+    <div class="seats-container">
+      <div class="seats-grid" id="seatsGrid"></div>
+    </div>
+    <div class="booking-actions">
+      <div class="booking-details">
+        🪑 Seats: <strong id="selectedSeatsLabel">none</strong> &nbsp;|&nbsp; 💲 Total: $<span id="panelTotal">0</span>
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <button class="cancel-btn" id="cancelBookingBtn">Cancel selection</button>
+        <button class="confirm-btn" id="confirmBookingBtn">✅ Confirm Booking</button>
+      </div>
+    </div>
+    <div id="bookingMessage" class="message-area"></div>
+  </div>
+  <footer>
+    🍿 Real-time seat booking simulator • Ticket prices vary by movie • max 8 seats per transaction
+  </footer>
+</div>
+
+<script>
+  // ------------------------------
+  // MOCK DATABASE (static, but persistent in memory via localStorage simulation for production-like)
+  // For a true production static + node backend we'd use API, but here we store bookings in localStorage
+  // so that page reloads preserve 'booked' seats. This mimics a persistent state.
+  // Also we embed initial movies data
+  // ------------------------------
+  
+  // Available movies
+  const MOVIES = [
+    { id: 1, title: "Dune: Part Two", genre: "Sci-Fi Epic", duration: "166 min", price: 14.50, poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/8b8R8l88Qje9dnbOE6hjt8i5j4E.jpg", fallbackBg: "#221c2e" },
+    { id: 2, title: "Deadpool 3", genre: "Action Comedy", duration: "127 min", price: 15.00, poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/30vUjydH5bFiAOYuuAa1q4Z0V8Z.jpg", fallbackBg: "#2a1a2c" },
+    { id: 3, title: "Inside Out 2", genre: "Animation", duration: "100 min", price: 12.75, poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/v9yZpX1iSM0dq7A3u7UyO5hXUYh.jpg", fallbackBg: "#1e2e3a" },
+    { id: 4, title: "A Quiet Place: Day One", genre: "Horror Thriller", duration: "99 min", price: 13.25, poster: "https://image.tmdb.org/t/p/w600_and_h900_bestv2/iVn4BYFvsfPmztrwjbtGpzqO4Rt.jpg", fallbackBg: "#2f2325" }
+  ];
+
+  // default seat map: each movie gets 8x6 = 48 seats (rows A-F, cols 1-8)
+  const ROWS = 6;
+  const COLS = 8;
+  
+  // Helper: generate seat IDs like "A1","A2"... "F8"
+  function generateSeatIds() {
+    const seats = [];
+    const rowLabels = ['A','B','C','D','E','F'];
+    for(let r = 0; r < ROWS; r++) {
+      for(let c = 1; c <= COLS; c++) {
+        seats.push(`${rowLabels[r]}${c}`);
+      }
+    }
+    return seats;
+  }
+  const ALL_SEAT_IDS = generateSeatIds();
+
+  // Storage key for bookings: { movieId: { seatId: true, ... } }
+  let globalBookings = {};  // structure: { "1": { "A1": true, "B2": true }, "2": {...} }
+  
+  // current selected movie & seats
+  let currentMovie = null;         // movie object
+  let currentSelectedSeats = [];   // array of seat IDs (strings)
+  
+  // Load persisted bookings from localStorage (production-like persistence)
+  function loadBookingData() {
+    const stored = localStorage.getItem("cineMagic_bookings");
+    if(stored) {
+      try {
+        globalBookings = JSON.parse(stored);
+      } catch(e) { globalBookings = {}; }
+    }
+    if(!globalBookings) globalBookings = {};
+    // ensure each movie has an entry for safety
+    MOVIES.forEach(m => {
+      if(!globalBookings[m.id]) globalBookings[m.id] = {};
+    });
+    saveBookingsToLocal();
+  }
+  
+  function saveBookingsToLocal() {
+    localStorage.setItem("cineMagic_bookings", JSON.stringify(globalBookings));
+  }
+  
+  // mark a seat as booked
+  function bookSeats(movieId, seatIds) {
+    if(!globalBookings[movieId]) globalBookings[movieId] = {};
+    seatIds.forEach(seat => {
+      globalBookings[movieId][seat] = true;
+    });
+    saveBookingsToLocal();
+  }
+  
+  // check if seat is already booked
+  function isSeatBooked(movieId, seatId) {
+    if(!globalBookings[movieId]) return false;
+    return globalBookings[movieId][seatId] === true;
+  }
+  
+  // get all booked seats for a movie
+  function getBookedSeatsForMovie(movieId) {
+    if(!globalBookings[movieId]) return [];
+    return Object.keys(globalBookings[movieId]);
+  }
+  
+  // UI state update: total tickets & price from current selected seats (global context)
+  function updateGlobalHeader() {
+    let totalTickets = 0;
+    let totalPrice = 0;
+    if(currentMovie && currentSelectedSeats.length > 0) {
+      totalTickets = currentSelectedSeats.length;
+      totalPrice = totalTickets * currentMovie.price;
+    }
+    document.getElementById("totalTicketsCount").innerText = totalTickets;
+    document.getElementById("totalPriceSpan").innerText = totalPrice.toFixed(2);
+  }
+  
+  // render seats for currently selected movie
+  function renderSeatsGrid() {
+    if(!currentMovie) return;
+    const seatsGrid = document.getElementById("seatsGrid");
+    if(!seatsGrid) return;
+    const bookedSet = new Set(getBookedSeatsForMovie(currentMovie.id));
+    const selectedSet = new Set(currentSelectedSeats);
+    
+    seatsGrid.innerHTML = "";
+    ALL_SEAT_IDS.forEach(seatId => {
+      const seatDiv = document.createElement("div");
+      seatDiv.classList.add("seat");
+      const isBooked = bookedSet.has(seatId);
+      const isSelected = selectedSet.has(seatId);
+      if(isBooked) {
+        seatDiv.classList.add("booked");
+      } else if(isSelected) {
+        seatDiv.classList.add("selected");
+      } else {
+        seatDiv.classList.add("available");
+      }
+      seatDiv.innerText = seatId;
+      if(!isBooked) {
+        seatDiv.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if(isSelected) {
+            // remove seat
+            currentSelectedSeats = currentSelectedSeats.filter(s => s !== seatId);
+          } else {
+            // add seat, limit 8
+            if(currentSelectedSeats.length >= 8) {
+              showBookingMessage("⚠️ Maximum 8 seats per booking.", "warn");
+              return;
+            }
+            currentSelectedSeats.push(seatId);
+          }
+          renderSeatsGrid();
+          updateBookingPanelInfo();
+          updateGlobalHeader();
+          clearMessageIfNormal();
+        });
+      }
+      seatsGrid.appendChild(seatDiv);
+    });
+  }
+  
+  function clearMessageIfNormal() {
+    const msgDiv = document.getElementById("bookingMessage");
+    if(msgDiv && msgDiv.innerText.includes("Maximum") === false && msgDiv.innerText.includes("already booked") === false) {
+      // do not clear persistent errors automatically but after selection we reset warning style
+      if(msgDiv.innerText.includes("Please select")) msgDiv.innerText = "";
+    }
+  }
+  
+  function showBookingMessage(msg, type = "info") {
+    const msgDiv = document.getElementById("bookingMessage");
+    if(msgDiv) {
+      msgDiv.innerText = msg;
+      msgDiv.style.color = type === "warn" ? "#ffaa66" : "#b9e6b9";
+      setTimeout(() => {
+        if(document.getElementById("bookingMessage")?.innerText === msg) {
+          // only clear if same message
+          if(type !== "error") msgDiv.innerText = "";
+        }
+      }, 4000);
+    }
+  }
+  
+  function updateBookingPanelInfo() {
+    if(!currentMovie) return;
+    const total = currentSelectedSeats.length * currentMovie.price;
+    document.getElementById("panelTotal").innerText = total.toFixed(2);
+    const seatsStr = currentSelectedSeats.length ? currentSelectedSeats.join(", ") : "none";
+    document.getElementById("selectedSeatsLabel").innerText = seatsStr;
+  }
+  
+  // confirm booking action
+  function confirmBooking() {
+    if(!currentMovie) {
+      showBookingMessage("Please select a movie first.", "error");
+      return;
+    }
+    if(currentSelectedSeats.length === 0) {
+      showBookingMessage("You haven't selected any seats. Please choose at least one seat.", "warn");
+      return;
+    }
+    // double-check none of selected seats are booked (avoid race)
+    const bookedSeatsNow = getBookedSeatsForMovie(currentMovie.id);
+    const conflictSeats = currentSelectedSeats.filter(seat => bookedSeatsNow.includes(seat));
+    if(conflictSeats.length > 0) {
+      showBookingMessage(`Sorry, seat(s) ${conflictSeats.join(", ")} just got booked. Refresh selection.`, "error");
+      // refresh selection: remove conflicts from currentSelectedSeats
+      currentSelectedSeats = currentSelectedSeats.filter(s => !conflictSeats.includes(s));
+      renderSeatsGrid();
+      updateBookingPanelInfo();
+      updateGlobalHeader();
+      return;
+    }
+    // Process booking
+    bookSeats(currentMovie.id, currentSelectedSeats);
+    const totalPaid = (currentSelectedSeats.length * currentMovie.price).toFixed(2);
+    showBookingMessage(`🎉 Booking confirmed! ${currentSelectedSeats.length} seat(s) for "${currentMovie.title}". Total: $${totalPaid}. Enjoy the show!`, "success");
+    // clear only selected seats
+    currentSelectedSeats = [];
+    renderSeatsGrid();
+    updateBookingPanelInfo();
+    updateGlobalHeader();
+    // Also update global total tickets
+  }
+  
+  function cancelSelection() {
+    if(!currentMovie) return;
+    if(currentSelectedSeats.length > 0) {
+      currentSelectedSeats = [];
+      renderSeatsGrid();
+      updateBookingPanelInfo();
+      updateGlobalHeader();
+      showBookingMessage("Selection cleared.", "info");
+    } else {
+      showBookingMessage("No seats to cancel.", "info");
+    }
+  }
+  
+  // select a movie card
+  function selectMovie(movie) {
+    currentMovie = movie;
+    // load any previous selected seats? reset selection for new movie.
+    currentSelectedSeats = [];
+    // render booking panel
+    const panel = document.getElementById("bookingPanel");
+    panel.style.display = "block";
+    document.getElementById("selectedMovieTitle").innerHTML = `${movie.title} • $${movie.price} per ticket`;
+    renderSeatsGrid();
+    updateBookingPanelInfo();
+    updateGlobalHeader();
+    document.getElementById("bookingMessage").innerHTML = "";
+    // scroll smooth
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  
+  // render movie cards
+  function renderMovies() {
+    const grid = document.getElementById("movieGrid");
+    grid.innerHTML = "";
+    MOVIES.forEach(movie => {
+      const card = document.createElement("div");
+      card.className = "movie-card";
+      // poster with fallback color / gradient
+      const posterDiv = document.createElement("div");
+      posterDiv.className = "movie-poster";
+      posterDiv.style.backgroundImage = `url(${movie.poster})`;
+      posterDiv.style.backgroundSize = "cover";
+      posterDiv.style.backgroundColor = movie.fallbackBg;
+      // on error fallback background
+      posterDiv.onerror = function() { this.style.backgroundImage = `linear-gradient(135deg, #2a2e45, #10131f)`; this.innerHTML = '<div style="text-align:center; padding-top:140px;">🎞️ Poster</div>'; };
+      const infoDiv = document.createElement("div");
+      infoDiv.className = "movie-info";
+      infoDiv.innerHTML = `
+        <div class="movie-title">${movie.title}</div>
+        <div class="movie-meta"><span>${movie.genre}</span><span>${movie.duration}</span></div>
+        <div class="price">$${movie.price.toFixed(2)} / ticket</div>
+      `;
+      card.appendChild(posterDiv);
+      card.appendChild(infoDiv);
+      card.addEventListener("click", () => selectMovie(movie));
+      grid.appendChild(card);
+    });
+  }
+  
+  // additional: attach listeners for confirm/cancel buttons after DOM ready
+  function bindGlobalButtons() {
+    const confirmBtn = document.getElementById("confirmBookingBtn");
+    const cancelBtn = document.getElementById("cancelBookingBtn");
+    if(confirmBtn) confirmBtn.addEventListener("click", confirmBooking);
+    if(cancelBtn) cancelBtn.addEventListener("click", cancelSelection);
+  }
+  
+  // initial load with demo pre-booked seats to show realism (a few prebooked seats for each movie)
+  function seedDemoBookings() {
+    // Pre-book some examples for better UX : first movie (Dune) seats A1,A2 ; second movie B1,B2 etc.
+    if(!globalBookings[1] || Object.keys(globalBookings[1]).length === 0) {
+      globalBookings[1] = { "A1": true, "C3": true, "D5": true };
+    }
+    if(!globalBookings[2] || Object.keys(globalBookings[2]).length === 0) {
+      globalBookings[2] = { "B1": true, "B2": true, "F7": true };
+    }
+    if(!globalBookings[3] || Object.keys(globalBookings[3]).length === 0) {
+      globalBookings[3] = { "E2": true, "E3": true };
+    }
+    if(!globalBookings[4] || Object.keys(globalBookings[4]).length === 0) {
+      globalBookings[4] = { "A4": true, "C6": true };
+    }
+    saveBookingsToLocal();
+  }
+  
+  function init() {
+    loadBookingData();
+    seedDemoBookings(); // only sets if empty; doesn't overwrite user bookings
+    renderMovies();
+    bindGlobalButtons();
+    // if no movie selected specifically we keep panel hidden until click
+    // if there is already a selected currentMovie? none.
+    updateGlobalHeader();  // zero state
+  }
+  
+  init();
+</script>
+</body>
+</html>4
