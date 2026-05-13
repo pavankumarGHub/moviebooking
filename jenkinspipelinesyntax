@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Code') {
+            steps {
+                git 'https://github.com/pavankumarGHub/moviebooking.git'
+            }
+        }
+        stage('build') {
+            steps {
+                sh 'docker build -t $imagename .'
+            }
+        }
+        stage('Registry') {
+            steps {
+                sh 'docker login -u $dockerhubusername -p $dockerhubpassword'
+                sh 'docker tag $imagename $dockerhubusername/dj:$tag'
+                sh 'docker push $dockerhubusername/dj:$tag'
+            }
+        }
+        stage('deploy'){
+            steps{
+                sh 'docker run -itd --name $containername -p $hostport:80 $imagename'
+            }
+        }
+    }
+}
